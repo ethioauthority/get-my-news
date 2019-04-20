@@ -49,15 +49,12 @@ class GetMyNews
     if !news_items.nil?
       news_items.each do |article|
         puts "[news-api] processing #{article['soure_name']}"
-        next if article['content'].nil?
-        mercury_parsed = mercury_parse(article['url']) unless article['content']
-                                                              .nil?
-        article.merge!(mercury_parsed) if mercury_parsed['word_count'] > 1
-        ip_info = if mercury_parsed['domain'] && mercury_parsed['word_count'] > 1
-                    get_ip_obj.start(mercury_parsed['domain'])
-                  else
-                    get_ip_obj.start(article['url'])
-                  end
+        next if article['content'].nil?       
+       ip_info = if article['url']
+                   get_ip_obj.start(article['url'])
+                 else
+                   get_ip_obj.start(article['url'])
+                 end
         article.merge!(ip_info) if ip_info
         write_brief_news_to_pdf(article)
         # write_articles_to_pdf(article)
@@ -109,6 +106,7 @@ class GetMyNews
   end
 
   def write_brief_news_to_pdf(article)
+    byebug
     html = construct_brief_news_html(article)
     html_to_pdf(html, article)
   end
